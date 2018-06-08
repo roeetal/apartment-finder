@@ -114,6 +114,37 @@ SLACK_CHANNEL = "#housing"
 # Should be put in private.py, or set as an environment variable.
 SLACK_TOKEN = os.getenv('SLACK_TOKEN', "")
 
+# Google API Settings
+
+GOOGLE_TOKEN_PLACES = os.getenv('GOOGLE_TOKEN_PLACES', "")
+#You can use the distance API for time and distance informaiton
+# from the apartment found to specified locations. e.g. your work.
+# Information for the googlemaps distance matric api
+DESTINATIONS="Starbucks"
+MODE="transit"
+LANG="english"
+AVOID=None
+UNITS="metric"
+DEPART_TIME=None
+dt = datetime.now()
+art = dt.replace(hour=7,minute=45)
+ARRIV_TIME=art
+TRANS_MODE="bus"
+TRANS_ROUT_PREF="fewer_transfers"
+TRAFFIC_MODEL="best_guess"
+
+# Information for the googlemaps places api_call
+# For information about places in the area, eg. restaurants.
+radius=1500
+keyword=None
+min_price=0
+max_price=4
+name=None
+open_now=False
+rank_by=None
+TYPE="restaurant"
+
+
 # Any private settings are imported here.
 try:
     from private import *

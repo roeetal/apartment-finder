@@ -23,6 +23,7 @@ Look in `settings.py` for a full list of all the configuration options.  Here's 
 * `CRAIGSLIST_HOUSING_SECTION` -- the subsection of Craigslist housing that you want to look in.
 * `SLACK_CHANNEL` -- the Slack channel you want the bot to post in.
 
+
 External Setup
 --------------------
 
@@ -31,6 +32,7 @@ Before using this bot, you'll need a Slack team, a channel for the bot to post i
 * Create a Slack team, which you can do [here](https://slack.com/create#email).  
 * Create a channel for the listings to be posted into.  [Here's](https://get.slack.help/hc/en-us/articles/201402297-Creating-a-channel) help on this.  It's suggested to use `#housing` as the name of the channel.
 * Get a Slack API token, which you can do [here](https://api.slack.com/docs/oauth-test-tokens).  [Here's](https://get.slack.help/hc/en-us/articles/215770388-Creating-and-regenerating-API-tokens) more information on the process.
+* Get your Google Maps API token from [This link](https://developers.google.com/maps/documentation/javascript/get-api-key).
 
 Configuration
 --------------------
@@ -55,6 +57,7 @@ Configuration
 
 * Create a file called `private.py` in this folder.
     * Add a value called `SLACK_TOKEN` that contains your Slack API token.
+    * Add a value called `GOOGLE_TOKEN_PLACES` that contains your Google Maps API token.
     * Add any other values you want to `private.py`.
 
 Installation + Usage
@@ -68,7 +71,7 @@ Installation + Usage
     * `docker run -d -e SLACK_TOKEN={YOUR_SLACK_TOKEN} dataquestio/apartment-finder`
 * To run the program with your own configuration:
     * `docker run -d -e SLACK_TOKEN={YOUR_SLACK_TOKEN} -v {ABSOLUTE_PATH_TO_YOUR_CONFIG_FOLDER}:/opt/wwc/apartment-finder/config dataquestio/apartment-finder`
-    
+
 ## Manual
 
 * Look in the `Dockerfile`, and make sure you install any of the apt packages listed there.

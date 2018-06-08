@@ -1,5 +1,6 @@
 import settings
 import math
+import googlemaps
 
 def coord_distance(lat1, lon1, lat2, lon2):
     """
@@ -36,6 +37,15 @@ def post_listing_to_slack(sc, listing):
     :param listing: A record of the listing.
     """
     desc = "{0} | {1} | {2} | {3} | <{4}>".format(listing["area"], listing["price"], listing["bart_dist"], listing["name"], listing["url"])
+    image_url=""
+    if listing["geotag"] != None:
+        image_url = """https://maps.googleapis.com/maps/api/staticmap?size=500x400"""+\
+        """&markers=color:blue%7Clabel:S%7C"""+str(settings.WORK_COORD[0])+","+str(settings.WORK_COORD[1])+\
+        """&markers=color:red%7Clabel:A%7C"""+str(listing["geotag"][0])+","+str(listing["geotag"][1])+"""&key="""+settings.GOOGLE_TOKEN_MAPS
+        attachments = [{"title": "map",
+                        "image_url": image_url}]
+    else:
+        attachments = None
     sc.api_call(
         "chat.postMessage", channel=settings.SLACK_CHANNEL, text=desc,
         username='pybot', icon_emoji=':robot_face:'
@@ -55,11 +65,27 @@ def find_points_of_interest(geotag, location):
     near_bart = False
     bart_dist = "N/A"
     bart = ""
+    distance_matrix_result=""
     # Look to see if the listing is in any of the neighborhood boxes we defined.
-    for a, coords in settings.BOXES.items():
-        if in_box(geotag, coords):
-            area = a
-            area_found = True
+
+    if geotag is not None:
+        for a, coords in settings.BOXES.items():
+            if in_box(geotag, coords):
+                area = a
+                area_found = True
+        # get googlemaps data for the distance and duration to the specified destination
+        gmaps = googlemaps.Client(key=settings.GOOGLE_TOKEN_DISTANCE)
+        distance_matrix = gmaps.distance_matrix(geotag, settings.DESTINATIONS, mode=settings.MODE, language=settings.LANG, avoid=settings.AVOID, units=settings.UNITS, departure_time=settings.DEPART_TIME, arrival_time=settings.ARRIV_TIME, transit_mode=settings.TRANS_MODE, transit_routing_preference=settings.TRANS_ROUT_PREF, traffic_model=settings.TRAFFIC_MODEL)
+        gplaces = googlemaps.Client(key=settings.GOOGLE_TOKEN_PLACES)
+        places_list = gplaces.places_nearby(geotag, settings.radius, settings.keyword, settings.LANG, settings.min_price, settings.max_price, settings.name, settings.open_now, settings.rank_by, settings.TYPE, page_token=None)
+        if distance_matrix['rows'][0]['elements'][0]['status'] != 'ZERO_RESULTS':
+            time = distance_matrix['rows'][0]['elements'][0]['duration']['text']
+            distance = distance_matrix['rows'][0]['elements'][0]['distance']['text']
+            distance_matrix_result = "{0} in {1}".format(distance, time)
+        else:
+            distance_matrix_result = "Google Error."
+    else:
+        distance_matrix_result= "Not enough location information available."
 
     # Check to see if the listing is near any transit stations.
     for station, coords in settings.TRANSIT_STATIONS.items():
@@ -84,4 +110,5 @@ def find_points_of_interest(geotag, location):
         "near_bart": near_bart,
         "bart_dist": bart_dist,
         "bart": bart
+        "distance_matrix_result": distance_matrix_result
     }

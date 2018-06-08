@@ -32,6 +32,7 @@ class Listing(Base):
     cl_id = Column(Integer, unique=True)
     area = Column(String)
     bart_stop = Column(String)
+    distance_matrix_result = Column(String)
 
 Base.metadata.create_all(engine)
 
@@ -97,7 +98,8 @@ def scrape_area(area):
                 cl_id=result["id"],
                 area=result["area"],
                 bart_stop=result["bart"]
-            )
+                distance_matrix_result=result["distance_matrix_result"]
+                )
 
             # Save the listing so we don't grab it again.
             session.add(listing)
